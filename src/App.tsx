@@ -1,7 +1,10 @@
 import React, { useState } from "react";
 import "./App.css";
 
+type Model = "turbo" | "davinci";
+
 export default function App() {
+  const [model, setModel] = useState<Model>("turbo");
   const [prompt, setPrompt] = useState("");
   const [message, setMessage] = useState("");
   const [response, setResponse] = useState([]);
@@ -16,7 +19,7 @@ export default function App() {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ message, prompt }),
+      body: JSON.stringify({ message, prompt, model }),
     })
       .then((res) => res.json())
       .then((data) => setResponse(data.message))
@@ -26,7 +29,19 @@ export default function App() {
   return (
     <div className="App">
       <form onSubmit={handleSubmit}>
-        <div>
+        <div className="row">
+          <label htmlFor="model">Model</label>
+          <select
+            name="model"
+            id="model"
+            value={model}
+            onChange={({ target: { value } }) => setModel(value as Model)}
+          >
+            <option value="turbo">gpt-3.5-turbo</option>
+            <option value="davinci">text-davinci-003</option>
+          </select>
+        </div>
+        <div className="row">
           <textarea
             cols={50}
             rows={10}
@@ -35,7 +50,7 @@ export default function App() {
             placeholder="place your prompt here"
           ></textarea>
         </div>
-        <div>
+        <div className="row">
           <textarea
             cols={50}
             rows={10}

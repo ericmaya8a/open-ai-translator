@@ -6,7 +6,6 @@ import { Configuration, OpenAIApi } from "openai";
 import dotenv from "dotenv";
 
 dotenv.config();
-// https://alto.zoom.us/j/6095294817
 
 const app = express();
 const port = 3001;
@@ -35,20 +34,35 @@ app.use(bodyParser.json());
 app.use(cors());
 
 app.post("/", async (req, res) => {
-  const { message, prompt } = req.body;
-  const response = await openai.createCompletion({
-    model: "text-davinci-003",
-    prompt: `${prompt} ${message}`,
-    max_tokens: 1000,
-    temperature: 0,
-  });
+  const { message, prompt, model } = req.body;
 
-  if (response.data.choices[0].text) {
-    return res.json({
-      message: response.data.choices[0].text
-        .split("\n")
-        .filter((item) => item.length),
+  if (model === "turbo") {
+    const response = await openai.createChatCompletion({
+      model: "gpt-3.5-turbo",
+      messages: [{ role: "system", content: `${prompt} ${message}` }],
     });
+
+    if (response.data.choices[0].message?.content) {
+      return res.json({
+        message: response.data.choices[0].message.content
+          .split("\n")
+          .filter((item) => item.length),
+      });
+    }
+  } else {
+    const response = await openai.createCompletion({
+      model: "text-davinci-003",
+      prompt: `${prompt} ${message}`,
+      max_tokens: 1000,
+      temperature: 0,
+    });
+    if (response.data.choices[0].text) {
+      return res.json({
+        message: response.data.choices[0].text
+          .split("\n")
+          .filter((item) => item.length),
+      });
+    }
   }
 
   res.json({
