@@ -1,7 +1,21 @@
 import React, { useState } from "react";
+import * as Label from "@radix-ui/react-label";
+import { ColorRing } from "react-loader-spinner";
 import "./App.css";
+import { Select } from "./components/Select";
 
 type Model = "turbo" | "davinci";
+
+const options = [
+  {
+    label: "text-davinci-003",
+    value: "davinci",
+  },
+  {
+    label: "gpt-3.5-turbo",
+    value: "turbo",
+  },
+];
 
 export default function App() {
   const [model, setModel] = useState<Model>("turbo");
@@ -30,19 +44,21 @@ export default function App() {
     <div className="App">
       <form onSubmit={handleSubmit}>
         <div className="row">
-          <label htmlFor="model">Model</label>
-          <select
-            name="model"
-            id="model"
+          <Label.Root className="LabelRoot" htmlFor="model">
+            Model:{" "}
+          </Label.Root>
+          <Select
             value={model}
-            onChange={({ target: { value } }) => setModel(value as Model)}
-          >
-            <option value="turbo">gpt-3.5-turbo</option>
-            <option value="davinci">text-davinci-003</option>
-          </select>
+            options={options}
+            onChange={(val) => setModel(val as Model)}
+          />
         </div>
         <div className="row">
+          <Label.Root className="LabelRoot" htmlFor="propmpt">
+            Prompt:
+          </Label.Root>
           <textarea
+            id="prompt"
             cols={50}
             rows={10}
             value={prompt}
@@ -51,7 +67,9 @@ export default function App() {
           ></textarea>
         </div>
         <div className="row">
+          <label htmlFor="message">Message:</label>
           <textarea
+            id="message"
             cols={50}
             rows={10}
             value={message}
@@ -59,13 +77,20 @@ export default function App() {
             placeholder="place your the text to translate here"
           ></textarea>
         </div>
-        <br />
-        <button type="submit" disabled={loading}>
-          Translate
+        <button className="Button" type="submit" disabled={loading}>
+          {loading ? (
+            <ColorRing
+              visible
+              height={30}
+              width={30}
+              ariaLabel="blocks-loading"
+              colors={["#e15b64", "#f47e60", "#f8b26a", "#abbd81", "#849b87"]}
+            />
+          ) : (
+            "Translate"
+          )}
         </button>
       </form>
-
-      {loading && <p>loading...</p>}
 
       <div className="response">
         {response.length > 0 && !loading && (
